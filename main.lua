@@ -5,56 +5,21 @@ io.stdout:setvbuf("no")
 -- love.filesystem.write("savedata.txt", serialized)
 -- love.graphics.translate(x, y)
 
-local gun, gun_animation, character, speed, boost, x, y, sheet_animator, grass, character_animation
+local character, sheet_animator, grass
 
 function love.load()
-  gun = love.graphics.newImage("gun.png")
-  grass = love.graphics.newImage("grass.png")
-  -- gun_width = gun:getWidth()
-  -- gun_height = gun:getHeight()
-  character = love.graphics.newImage("yellow_guy.png")
-  speed = 40
-  boost = 70
-  x = 150
-  y = 150
+  grass = love.graphics.newImage("asset/grass.png")
+  character = require("objects.player").create(150, 150)
   sheet_animator = require("sheet_animator")
-  character_animation = sheet_animator:create(
-    character,
-    26,
-    26,
-    { 0, 1, 2, 3, 4, 5, 6 },
-    200,
-    0,
-    0
-  )
-  gun_animation = sheet_animator:create(
-    gun,
-    13,
-    13,
-    { 0, 1, 2 },
-    200,
-    1,
-    12
-  )
 end
 
 function love.update(dt)
   sheet_animator:update(dt)
-  local acceleration = speed
-  if love.keyboard.isDown("lshift") then
-    acceleration = acceleration + boost
-  end
-  if love.keyboard.isDown("left") then
-    acceleration = -acceleration
-  elseif not love.keyboard.isDown("right") then
-    acceleration = 0
-  end
-  x = x + acceleration * dt
+  character:update(dt)
 end
 
 function love.keypressed(key)
   if key == "escape" then
-    -- love.window.close()
     love.event.quit()
   end
 end
@@ -67,15 +32,13 @@ function love.draw()
       love.graphics.draw(grass, quad, x * 46 * scale, y * 38 * scale, 0, scale, scale)
     end
   end
-  love.graphics.draw(gun, 300, 200)
-  love.graphics.draw(character, 200, 50)
-  local quad = gun_animation:get_quad()
-  love.graphics.draw(gun, quad, 20, 20)
-  quad = character_animation:get_quad()
-  love.graphics.draw(character, quad, 80, 80)
+  -- love.graphics.draw(gun, 300, 200)
+  character:draw()
+  -- quad = gun_animation:get_quad()
+  -- love.graphics.draw(gun, quad, 20, 20)
   love.graphics.setColor(0.2, 0.6, 0)
-  love.graphics.rectangle("line", x, y, 400, 40)
+  -- love.graphics.rectangle("line", x, y, 400, 40)
   love.graphics.setColor(0, 0.2, 0.6)
-  love.graphics.print("Hello World!", x, y)
+  -- love.graphics.print("Hello World!", x, y)
   love.graphics.setColor(1, 1, 1)
 end

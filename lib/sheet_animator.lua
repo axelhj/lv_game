@@ -19,13 +19,18 @@ local function get_quad(self)
   )
 end
 
+local function reset(self)
+  self.current_frame = 1
+  self.next_tick = sheet_animator.elapsed_time + self.speed
+end
+
 --[[
 Cycles are {
   cycles = { frame_ind_1, frame_ind_2, ...},
   speed = speed_ms_frame_time,
 }
 ]]--
-function sheet_animator:create(lv_image, frames_x, frames_y, cycles, speed, pad_x, pad_y)
+function sheet_animator:create(lv_image, frames_x, frames_y, cycles, speed, pad_x, pad_y, repeat_)
   local width = lv_image:getWidth()
   local height = lv_image:getHeight()
   local instance = {
@@ -40,6 +45,8 @@ function sheet_animator:create(lv_image, frames_x, frames_y, cycles, speed, pad_
     current_frame = 1,
     speed = speed,
     next_tick = 0,
+    repeat_ = repeat_,
+    reset = reset,
     get_quad = get_quad,
   }
   table.insert(self.instances, instance)
@@ -71,7 +78,9 @@ function sheet_animator:update(dt)
     then
       instance.next_tick = instance.next_tick + instance.speed
       if instance.current_frame == #instance.cycles then
-        instance.current_frame = 1
+        if instance.repeat_ then
+          instance.current_frame = 1
+        end
       else
         instance.current_frame = instance.current_frame + 1
       end

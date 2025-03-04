@@ -10,7 +10,8 @@ Cycles are {
 ]]--
 function player.create(x, y)
   local instance = {}
-  sheet_animator = require("sheet_animator")
+  local sheet_animator = require("lib.sheet_animator")
+  instance.ballistic = require("objects.projectile").create(200, 200, 6.28 - 1.57)
   instance.character = love.graphics.newImage("asset/yellow_guy.png")
   instance.bazooka = love.graphics.newImage("asset/bazooka.png")
   instance.x = x
@@ -21,10 +22,11 @@ function player.create(x, y)
     instance.bazooka,
     26,
     8,
-    { 0, 1 },
+    { 0, 1, 0, 1 },
     800,
     0,
-    0
+    0,
+    false
   )
   instance.character_animation = sheet_animator:create(
     instance.character,
@@ -33,7 +35,8 @@ function player.create(x, y)
     { 0, 1, 2, 3, 4, 5, 6 },
     200,
     0,
-    0
+    0,
+    false
   )
   instance.elapsed_time = 0
   player.instance = instance
@@ -49,7 +52,7 @@ function player:update(dt)
   instance.elapsed_time = instance.elapsed_time + (dt * 1000)
   local actual_speed = instance.speed
   if love.keyboard.isDown("lshift") then
-    actual_speed = instance.boost
+    actual_speed = actual_speed + instance.boost
   end
   if love.keyboard.isDown("left") then
     instance.x = instance.x - actual_speed * dt
@@ -61,6 +64,7 @@ function player:update(dt)
   elseif love.keyboard.isDown("down") then
     instance.y = instance.y + actual_speed * dt
   end
+  instance.ballistic:update(dt)
 end
 
 function player:draw()
@@ -69,6 +73,7 @@ function player:draw()
   love.graphics.draw(instance.character, quad, instance.x, instance.y)
   quad = instance.bazooka_animation:get_quad()
   love.graphics.draw(instance.bazooka, quad, instance.x, instance.y - 28)
+  instance.ballistic.draw(instance.ballistic)
 end
 
 return player

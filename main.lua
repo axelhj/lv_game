@@ -10,7 +10,7 @@ local character, sheet_animator, grass
 function love.load()
   grass = love.graphics.newImage("asset/grass.png")
   character = require("objects.player").create(150, 150)
-  sheet_animator = require("sheet_animator")
+  sheet_animator = require("lib.sheet_animator")
 end
 
 function love.update(dt)

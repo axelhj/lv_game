@@ -11,7 +11,7 @@ Cycles are {
 function player.create(x, y)
   local instance = {}
   local sheet_animator = require("lib.sheet_animator")
-  instance.ballistic = require("objects.projectile").create(200, 200, 6.28 - 1.57)
+  instance.ballistic = require("objects.projectile")
   instance.character = love.graphics.newImage("asset/yellow_guy.png")
   instance.bazooka = love.graphics.newImage("asset/bazooka.png")
   instance.x = x
@@ -22,8 +22,8 @@ function player.create(x, y)
     instance.bazooka,
     26,
     8,
-    { 0, 1, 0, 1 },
-    800,
+    { 1, 0, },
+    300,
     0,
     0,
     false
@@ -41,6 +41,14 @@ function player.create(x, y)
   instance.elapsed_time = 0
   player.instance = instance
   return player
+end
+
+function player:keypressed(key)
+  local instance = self.instance
+  if key == "space" then
+    instance.bazooka_animation:reset()
+    instance.ballistic:create(instance.x + 24, instance.y - 10, 6.28 - 1.57)
+  end
 end
 
 function player:drop()
@@ -71,9 +79,9 @@ function player:draw()
   local instance = self.instance
   local quad = instance.character_animation:get_quad()
   love.graphics.draw(instance.character, quad, instance.x, instance.y)
+  instance.ballistic:draw()
   quad = instance.bazooka_animation:get_quad()
   love.graphics.draw(instance.bazooka, quad, instance.x, instance.y - 28)
-  instance.ballistic.draw(instance.ballistic)
 end
 
 return player

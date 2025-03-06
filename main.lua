@@ -22,12 +22,13 @@ function love.keypressed(key)
   if key == "escape" then
     love.event.quit()
   end
+  character:keypressed(key)
 end
 
 function love.draw()
   local quad = love.graphics.newQuad(0, 0, 46, 38, 1024, 1024)
   local scale = 1
-  for x = 0, 16 do
+  for x = 0, 17 do
     for y = 0, 16 do
       love.graphics.draw(grass, quad, x * 46 * scale, y * 38 * scale, 0, scale, scale)
     end

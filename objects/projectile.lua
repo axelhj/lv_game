@@ -1,5 +1,6 @@
 local projectile = {
-  instance = {}
+  instances = {},
+  elapsed_time = 0
 }
 
 --[[
@@ -8,44 +9,53 @@ Cycles are {
   speed = speed_ms_frame_time,
 }
 ]]--
-function projectile.create(x, y, alpha)
-  local instance = projectile.instance
-  instance.ballistic = love.graphics.newImage("asset/ballistic.png")
+function projectile:create(x, y, alpha)
+  if self.ballistic == nil then
+    self.ballistic = love.graphics.newImage("asset/ballistic.png")
+    self.quad = love.graphics.newQuad(
+      10, 2, 47, 132,
+      self.ballistic:getWidth(),
+      self.ballistic:getHeight()
+    )
+  end
+  local instance = {}
   instance.x = x
   instance.y = y
   instance.alpha = alpha
   instance.speed = 300
-  instance.elapsed_time = 0
-  instance.quad = love.graphics.newQuad(
-    10, 2, 47, 132,
-    instance.ballistic:getWidth(),
-    instance.ballistic:getHeight()
-  )
-  return projectile
+  instance.created_time = self.elapsed_time
+  table.insert(self.instances, instance)
+  return self
 end
 
 function projectile:drop()
-  self.instance = {}
+  self.instances = {}
 end
 
 function projectile:update(dt)
-  local instance = self.instance
-  instance.elapsed_time = instance.elapsed_time + (dt * 1000)
-  if (instance.elapsed_time / 1000) > 4 then
-    self.ballistic = nil
-    return
+  self.elapsed_time = self.elapsed_time + (dt * 1000)
+  for i = #self.instances, 1, -1 do
+    local instance = self.instances[i]
+    if (self.elapsed_time - instance.created_time) / 1000 > 4 then
+      table.remove(self.instances, i)
+    end
+    instance.x = instance.x + math.cos(instance.alpha) * instance.speed * dt
+    instance.y = instance.y + math.sin(instance.alpha) * instance.speed * dt
   end
-  instance.x = instance.x + math.cos(instance.alpha) * instance.speed * dt
-  instance.y = instance.y + math.sin(instance.alpha) * instance.speed * dt
 end
 
 function projectile:draw()
-  local instance = self.instance
-  if instance.ballistic == nil then
-    return
+  for i = 1, #self.instances do
+    local instance = self.instances[i]
+    love.graphics.draw(
+      self.ballistic,
+      self.quad,
+      instance.x,
+      instance.y,
+      instance.angle,
+      0.3
+    )
   end
-  local quad = instance.quad
-  love.graphics.draw(instance.ballistic, quad, instance.x, instance.y)
 end
 
 return projectile

@@ -8,7 +8,7 @@ Cycles are {
   speed = speed_ms_frame_time,
 }
 ]]--
-function player.create(x, y)
+function player:create(x, y)
   local instance = {}
   local sheet_animator = require("lib.sheet_animator")
   instance.ballistic = require("objects.projectile")
@@ -40,7 +40,7 @@ function player.create(x, y)
   )
   instance.elapsed_time = 0
   player.instance = instance
-  return player
+  return self
 end
 
 function player:keypressed(key)

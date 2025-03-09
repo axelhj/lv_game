@@ -9,7 +9,7 @@ Cycles are {
   speed = speed_ms_frame_time,
 }
 ]]--
-function projectile:create(x, y, alpha)
+function projectile:create(x, y, theta)
   if self.ballistic == nil then
     self.ballistic = love.graphics.newImage("asset/ballistic.png")
     self.quad = love.graphics.newQuad(
@@ -21,7 +21,7 @@ function projectile:create(x, y, alpha)
   local instance = {}
   instance.x = x
   instance.y = y
-  instance.alpha = alpha
+  instance.theta = theta
   instance.speed = 300
   instance.created_time = self.elapsed_time
   table.insert(self.instances, instance)
@@ -39,8 +39,8 @@ function projectile:update(dt)
     if (self.elapsed_time - instance.created_time) / 1000 > 4 then
       table.remove(self.instances, i)
     end
-    instance.x = instance.x + math.cos(instance.alpha) * instance.speed * dt
-    instance.y = instance.y + math.sin(instance.alpha) * instance.speed * dt
+    instance.x = instance.x + math.cos(instance.theta) * instance.speed * dt
+    instance.y = instance.y + math.sin(instance.theta) * instance.speed * dt
   end
 end
 

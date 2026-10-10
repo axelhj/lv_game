@@ -10,7 +10,7 @@ updates = {}
 draws = {}
 
 function love.load()
-  grass = love.graphics.newImage("asset/grass.png")
+  grass = love.graphics.newImage("asset/sp_grass.png")
   character = require("objects.player"):create(200, 400)
   local pig = require("objects.sprite"):create(150, 250, "pig", {
     scale = 1.5,

@@ -23,7 +23,7 @@ function sprite:create(x, y, sprite_name, options)
     elapsed_time = 0,
     sprite_name = sprite_name,
   }
-  instance.image = love.graphics.newImage("asset/"..sprite_name..".png")
+  instance.image = love.graphics.newImage("asset/sp_"..sprite_name..".png")
   local image_width = instance.image:getWidth()
   local image_height = instance.image:getHeight()
   local quad_top_x = options and options.offset_start_x or 0
@@ -56,8 +56,8 @@ function sprite.update(instance, dt)
   end
   local elapsed_seconds = instance.elapsed_time / 1000
   if
-    instance.disappear_seconds ~= nil and 
-    instance.disappear_seconds ~= 0 and 
+    instance.disappear_seconds ~= nil and
+    instance.disappear_seconds ~= 0 and
     elapsed_seconds > instance.disappear_seconds
   then
     if not instance.hidden then

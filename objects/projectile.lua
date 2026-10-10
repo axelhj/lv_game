@@ -11,7 +11,7 @@ Cycles are {
 ]]--
 function projectile:create(x, y, theta)
   if self.ballistic == nil then
-    self.ballistic = love.graphics.newImage("asset/ballistic.png")
+    self.ballistic = love.graphics.newImage("asset/sp_ballistic.png")
     self.quad = love.graphics.newQuad(
       10, 2, 47, 132,
       self.ballistic:getWidth(),

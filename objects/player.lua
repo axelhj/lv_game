@@ -12,8 +12,8 @@ function player:create(x, y)
   local instance = {}
   local sheet_animator = require("lib.sheet_animator")
   instance.ballistic = require("objects.projectile")
-  instance.character = love.graphics.newImage("asset/yellow_guy.png")
-  instance.bazooka = love.graphics.newImage("asset/bazooka.png")
+  instance.character = love.graphics.newImage("asset/sp_yellow_guy.png")
+  instance.bazooka = love.graphics.newImage("asset/sp_bazooka.png")
   instance.x = x
   instance.y = y
   instance.speed = 70

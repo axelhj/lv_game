@@ -53,7 +53,7 @@ function sheet_animator:create(lv_image, frames_x, frames_y, cycles, speed, pad_
   return instance
 end
 
-function sheet_animator:drop(self, instance)
+function sheet_animator:drop(instance)
   for i = 1, #self.instances do
     if self.instances[i] == instance then
       table.remove(self.instances, i)

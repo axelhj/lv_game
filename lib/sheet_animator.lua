@@ -30,7 +30,7 @@ Cycles are {
   speed = speed_ms_frame_time,
 }
 ]]--
-function sheet_animator:create(lv_image, frames_x, frames_y, cycles, speed, pad_x, pad_y, repeat_)
+function sheet_animator:new(lv_image, frames_x, frames_y, cycles, speed, pad_x, pad_y, repeat_)
   local width = lv_image:getWidth()
   local height = lv_image:getHeight()
   local instance = {

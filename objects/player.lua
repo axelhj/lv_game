@@ -1,6 +1,6 @@
-local player = {
-  instance = {}
-}
+local merge = require"lib.merge".merge
+
+local player = {}
 
 --[[
 Cycles are {
@@ -8,18 +8,18 @@ Cycles are {
   speed = speed_ms_frame_time,
 }
 ]]--
-function player:create(x, y)
-  local instance = {}
+function player:new(d, x, y)
   local sheet_animator = require("lib.sheet_animator")
-  instance.ballistic = require("objects.projectile")
-  instance.character = love.graphics.newImage("asset/sp_yellow_guy.png")
-  instance.bazooka = love.graphics.newImage("asset/sp_bazooka.png")
-  instance.x = x
-  instance.y = y
-  instance.speed = 70
-  instance.boost = 60
-  instance.bazooka_animation = sheet_animator:create(
-    instance.bazooka,
+  local new = require"lib.merge".merge({ d = d }, player)
+  new.ballistic = require("objects.projectile")
+  new.character = love.graphics.newImage("asset/sp_yellow_guy.png")
+  new.bazooka = love.graphics.newImage("asset/sp_bazooka.png")
+  new.x = x
+  new.y = y
+  new.speed = 70
+  new.boost = 60
+  new.bazooka_animation = sheet_animator:new(
+    new.bazooka,
     26,
     8,
     { 1, 0, },
@@ -28,8 +28,8 @@ function player:create(x, y)
     0,
     false
   )
-  instance.character_animation = sheet_animator:create(
-    instance.character,
+  new.character_animation = sheet_animator:new(
+    new.character,
     26,
     26,
     { 0, 1, 2, 3, 4, 5, 6 },
@@ -38,50 +38,51 @@ function player:create(x, y)
     0,
     false
   )
-  instance.elapsed_time = 0
-  player.instance = instance
-  return self
+  new.elapsed_time = 0
+  new = setmetatable(merge({}, new), { __index = self })
+  d:add("keypressed", function(key) new:keypressed(key) end)
+  d:add("update", function(dt) new:update(dt) end)
+  d:add("draw", function(_) new:draw() end)
+  return new
 end
 
 function player:keypressed(key)
-  local instance = self.instance
   if key == "space" then
-    instance.bazooka_animation:reset()
-    instance.ballistic:create(instance.x + 24, instance.y - 10, 6.28 - 1.57)
+    self.bazooka_animation:reset()
+    self.ballistic:create(self.x + 24, self.y - 10, 6.28 - 1.57)
   end
 end
 
 function player:drop()
-  self.instance = {}
+  -- self.d:remove("update", self)
+  -- self.d:remove("draw", self)
 end
 
 function player:update(dt)
-  local instance = self.instance
-  instance.elapsed_time = instance.elapsed_time + (dt * 1000)
-  local actual_speed = instance.speed
+  self.elapsed_time = self.elapsed_time + (dt * 1000)
+  local actual_speed = self.speed
   if love.keyboard.isDown("lshift") then
-    actual_speed = actual_speed + instance.boost
+    actual_speed = actual_speed + self.boost
   end
   if love.keyboard.isDown("left") then
-    instance.x = instance.x - actual_speed * dt
+    self.x = self.x - actual_speed * dt
   elseif love.keyboard.isDown("right") then
-    instance.x = instance.x + actual_speed * dt
+    self.x = self.x + actual_speed * dt
   end
   if love.keyboard.isDown("up") then
-    instance.y = instance.y - actual_speed * dt
+    self.y = self.y - actual_speed * dt
   elseif love.keyboard.isDown("down") then
-    instance.y = instance.y + actual_speed * dt
+    self.y = self.y + actual_speed * dt
   end
-  instance.ballistic:update(dt)
+  self.ballistic:update(dt)
 end
 
 function player:draw()
-  local instance = self.instance
-  local quad = instance.character_animation:get_quad()
-  love.graphics.draw(instance.character, quad, instance.x, instance.y)
-  instance.ballistic:draw()
-  quad = instance.bazooka_animation:get_quad()
-  love.graphics.draw(instance.bazooka, quad, instance.x, instance.y - 28)
+  local quad = self.character_animation:get_quad()
+  love.graphics.draw(self.character, quad, self.x, self.y)
+  self.ballistic:draw()
+  quad = self.bazooka_animation:get_quad()
+  love.graphics.draw(self.bazooka, quad, self.x, self.y - 28)
 end
 
 return player

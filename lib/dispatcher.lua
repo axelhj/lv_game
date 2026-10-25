@@ -1,7 +1,7 @@
 local d = {}
 
-function d:new(o)
-  return setmetatable(o or {}, { __index = self })
+function d:new()
+  return setmetatable({}, { __index = self })
 end
 
 function d:add(event, observer)
@@ -31,7 +31,7 @@ function d:remove(event, observer)
 end
 
 function d:dispatch(event, message)
-  local evt = self.observers[event]
+  local evt = self.observers[event] or {}
   for i = 1, #evt do
     evt[i](message)
   end

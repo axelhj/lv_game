@@ -1,89 +1,102 @@
-local sprite = {}
+local copy_merge = require"lib.merge".copy_merge
+local merge = require"lib.merge".merge
+local rectangle = require"lib.rectangle"
 
-local merge = require"lib/merge".merge
+local sprite = {
+  display_angle = 0,
+  movement_angle = 0,
+  appear_at_s = nil,
+  disappear_after_s = nil,
+  scale = 1,
+  hidden = false,
+  speed = 0,
+  x = 0,
+  y = 0,
+  elapsed_time = 0,
+  sprite_name = nil,
+  image = nil,
+  image_width = nil,
+  image_height = nil,
+  offset = nil
+}
 
-function sprite:create(x, y, sprite_name, options)
-  local theta = options and options.theta or 0
-  local angle = options and options.angle or 0
-  local appear_seconds = options and options.appear_at or nil
-  local disappear_seconds = options and options.disappear_at or nil
-  local scale = options and options.scale or nil
-  local instance = {
-    hidden = appear_seconds ~= nil and
-      appear_seconds ~= 0 and
-      disappear_seconds ~= nil,
-    speed = options and options.speed,
-    scale = scale,
-    angle = angle,
-    theta = theta,
+function sprite:new(d, x, y, sprite_name, options)
+  local image = love.graphics.newImage("asset/sp_"..sprite_name..".png")
+  local image_width = image:getWidth()
+  local image_height = image:getHeight()
+  local quad = rectangle:copy(options.offset)
+  quad.extent_x = quad.extent_x or image_width
+  quad.extent_y = quad.extent_x or image_height
+  local new = merge(copy_merge(sprite, options), {
+    d = d,
     x = x,
     y = y,
-    appear_seconds = appear_seconds,
-    disappear_seconds = disappear_seconds,
-    elapsed_time = 0,
     sprite_name = sprite_name,
-  }
-  instance.image = love.graphics.newImage("asset/sp_"..sprite_name..".png")
-  local image_width = instance.image:getWidth()
-  local image_height = instance.image:getHeight()
-  local quad_top_x = options and options.offset_start_x or 0
-  local quad_top_y = options and options.offset_start_y or 0
-  local quad_bottom_x = options and options.offset_end_x or image_width
-  local quad_bottom_y = options and options.offset_end_y or image_height
-  instance.quad = love.graphics.newQuad(
-    quad_top_x,
-    quad_top_y,
-    quad_bottom_x,
-    quad_bottom_y,
-    image_width,
-    image_height
-  )
-  return merge(instance, sprite)
+    image = image,
+    image_width = image_width,
+    image_height = image_height,
+    hidden = options.appear_at_s ~= nil and
+      options.appear_at_s ~= 0,
+    quad = love.graphics.newQuad(
+      quad.offset_x,
+      quad.offset_y,
+      quad.extent_x,
+      quad.extent_y,
+      image_width,
+      image_height
+    )
+  })
+  new = setmetatable(new, { __index = self })
+  new.d:add("update", function(dt) new:update(dt) end)
+  new.d:add("draw", function() new:draw() end)
+  return new
 end
 
 function sprite:drop()
+  -- self.d:remove("update", self)
+  -- self.d:remove("draw", self)
 end
 
-function sprite.update(instance, dt)
-  instance.elapsed_time = instance.elapsed_time + (dt * 1000)
+function sprite:update(dt)
+  self.elapsed_time = self.elapsed_time + (dt * 1000)
   if
-    not instance.hidden and
-    instance.speed ~= nil and
-    instance.speed ~= 0
+    not self.hidden and
+    self.speed ~= nil and
+    self.speed ~= 0
   then
-    instance.x = instance.x + math.cos(instance.theta) * instance.speed * dt
-    instance.y = instance.y + math.sin(instance.theta) * instance.speed * dt
+    self.x = self.x + math.cos(self.movement_angle) * self.speed * dt
+    self.y = self.y + math.sin(self.movement_angle) * self.speed * dt
   end
-  local elapsed_seconds = instance.elapsed_time / 1000
+  local elapsed_seconds = self.elapsed_time / 1000
   if
-    instance.disappear_seconds ~= nil and
-    instance.disappear_seconds ~= 0 and
-    elapsed_seconds > instance.disappear_seconds
+    self.disappear_after_s ~= nil and
+    self.disappear_after_s ~= 0 and
+    elapsed_seconds > self.disappear_after_s
   then
-    if not instance.hidden then
-      instance.hidden = true
+    if not self.hidden then
+      self.hidden = true
     end
     return
   end
   if
-    instance.appear_seconds ~= nil and
-    instance.appear_seconds ~= 0 and
-    elapsed_seconds > instance.appear_seconds and
-    instance.hidden
+    self.appear_at_s ~= nil and
+    self.appear_at_s ~= 0 and
+    elapsed_seconds > self.appear_at_s and
+    self.hidden
   then
-    instance.hidden = false
+    self.hidden = false
   end
 end
 
-function sprite.draw(instance)
-  if instance.hidden then return end
+function sprite.draw(self)
+  if self.hidden then return end
   love.graphics.draw(
-    instance.image,
-    instance.quad,
-    instance.x,
-    instance.y,
-    (instance.theta or 0) + (instance.angle or 0),
-    instance.scale == nil and 1 or instance.scale
+    self.image,
+    self.quad,
+    self.x,
+    self.y,
+    self.movement_angle + self.display_angle,
+    self.scale
   )
 end
 

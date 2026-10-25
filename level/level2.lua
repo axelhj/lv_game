@@ -1,28 +1,27 @@
-local level = {
-  loaded = false,
-  d = nil,
-}
+local copy_merge = require"lib.merge".copy_merge
+local animator = require"lib.sheet_animator"
 
-local updates = {}
-local draws = {}
-local character, grass
+local level = {}
 
-function level:load()
-  grass = love.graphics.newImage("asset/sp_grass.png")
-  character = require("objects.player"):create(200, 400)
-  table.insert(updates, character)
-  table.insert(updates, require("lib.sheet_animator"))
-  table.insert(draws, character)
-end
-
-function level:update(dt)
-  for _, update in ipairs(updates) do
-    update:update(dt)
-  end
+function level:new(d)
+  local new = copy_merge(self, {
+    d = d,
+  })
+  d:add("update", function(dt) new:update(dt) end)
+  d:add("draw", function(_) new:draw() end)
+  d:add("keypressed", function(key) new:keypressed(key) end)
+  new.grass = love.graphics.newImage("asset/sp_grass.png")
+  new.character = require("objects.player"):new(d, 200, 400)
+  return new
 end
 
 function level:keypressed(key)
-  character:keypressed(key)
+  self.character:keypressed(key)
+end
+
+function level:update(dt)
+  animator:update(dt)
+  self.character:update(dt)
 end
 
 function level:draw()
@@ -30,11 +29,8 @@ function level:draw()
   local scale = 1;
   for x = 0, 17 do
     for y = 0, 16 do
-      love.graphics.draw(grass, quad, x * 46 * scale, y * 38 * scale, 0, scale, scale)
+      love.graphics.draw(self.grass, quad, x * 46 * scale, y * 38 * scale, 0, scale, scale)
     end
-  end
-  for _, draw in ipairs(draws) do
-    draw:draw()
   end
   love.graphics.setColor(0.2, 0.6, 0)
   -- love.graphics.draw(gun, 300, 200)
@@ -47,4 +43,4 @@ function level:draw()
   love.graphics.setColor(1, 1, 1)
 end
 
- return level
+return level

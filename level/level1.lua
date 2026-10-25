@@ -1,78 +1,55 @@
-local level = {
-  loaded = false,
-  d = nil,
-}
+local rectangle = require"lib.rectangle"
+local copy_merge = require"lib.merge".copy_merge
+local animator = require"lib.sheet_animator"
 
-local updates = {}
-local draws = {}
-local character, grass
+local level = {}
 
-function level.load()
-  grass = love.graphics.newImage("asset/sp_grass.png")
-  character = require("objects.player"):create(200, 400)
-  local pig = require("objects.sprite"):create(150, 250, "pig", {
+function level:new(d)
+  local new = copy_merge(self, {
+    d = d,
+  })
+  d:add("keypressed", function(key) new:keypressed(key) end)
+  d:add("update", function(dt) new:update(dt) end)
+  d:add("draw", function(_) new:draw() end)
+  require("objects.sprite"):new(d, 150, 250, "pig", {
     scale = 1.5,
     speed = 40,
-    theta = math.pi * (1.05),
-    angle = math.pi,
-    appear_at = 3,
-    disappear_at = 6,
-    offset_start_x = 3,
-    offset_start_y = 10,
-    offset_end_x = 33,
-    offset_end_y = 25,
+    movement_angle = math.pi * (1.05),
+    display_angle = math.pi,
+    appear_at_s = 3,
+    disappear_after_s = 6,
+    offset = rectangle:new(3, 10, 33, 25)
   })
-  local meat_a = require("objects.sprite"):create(35, 250, "gibs", {
+  require("objects.sprite"):new(d, 35, 250, "gibs", {
     scale = 0.7,
-    angle = math.pi / 3,
-    appear_at = 6,
-    disappear_at = 18,
-    offset_start_x = 35,
-    offset_start_y = 8,
-    offset_end_x = 63,
-    offset_end_y = 33,
+    display_angle = math.pi / 3,
+    appear_at_s = 6,
+    disappear_after_s = 18,
+    offset = rectangle:new(35, 8, 63, 33),
   })
-  local meat_b = require("objects.sprite"):create(75, 250, "gibs", {
+  require("objects.sprite"):new(d, 75, 250, "gibs", {
     scale = 0.7,
-    angle = math.pi / 3,
-    appear_at = 6,
-    disappear_at = 18,
-    offset_start_x = 0,
-    offset_start_y = 0,
-    offset_end_x = 27,
-    offset_end_y = 24,
+    display_angle = math.pi / 3,
+    appear_at_s = 6,
+    disappear_after_s = 18,
+    offset = rectangle:new(0, 0, 27, 24)
   })
-  local meat_c = require("objects.sprite"):create(50, 220, "gibs", {
+  require("objects.sprite"):new(d, 50, 220, "gibs", {
     scale = 0.7,
-    appear_at = 7,
-    disappear_at = 20,
-    offset_start_x = 12,
-    offset_start_y = 38,
-    offset_end_x = 25,
-    offset_end_y = 50,
+    appear_at_s = 7,
+    disappear_after_s = 20,
+    offset = rectangle:new(12, 38, 25, 50),
   })
-  table.insert(updates, character)
-  table.insert(updates, pig)
-  table.insert(updates, meat_a)
-  table.insert(updates, meat_b)
-  table.insert(updates, meat_c)
-  table.insert(updates, require("lib.sheet_animator"))
-  table.insert(draws, character)
-  table.insert(draws, pig)
-  table.insert(draws, meat_a)
-  table.insert(draws, meat_b)
-  table.insert(draws, meat_c)
-  loaded = true
-end
-
-function level:update(dt)
-  for _, update in ipairs(updates) do
-    update:update(dt)
-  end
+  new.character = require("objects.player"):new(d, 200, 400)
+  new.grass = love.graphics.newImage("asset/sp_grass.png")
+  return new
 end
 
 function level:keypressed(key)
-  character:keypressed(key)
+end
+
+function level:update(dt)
+  animator:update(dt)
 end
 
 function level:draw()
@@ -80,11 +57,8 @@ function level:draw()
   local scale = 1
   for x = 0, 17 do
     for y = 0, 16 do
-      love.graphics.draw(grass, quad, x * 46 * scale, y * 38 * scale, 0, scale, scale)
+      love.graphics.draw(self.grass, quad, x * 46 * scale, y * 38 * scale, 0, scale, scale)
     end
-  end
-  for _, draw in ipairs(draws) do
-    draw:draw()
   end
   -- love.graphics.draw(gun, 300, 200)
   -- quad = gun_animation:get_quad()
@@ -96,4 +70,4 @@ function level:draw()
   love.graphics.setColor(1, 1, 1)
 end
 
- return level
+return level

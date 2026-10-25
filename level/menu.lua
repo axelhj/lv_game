@@ -1,20 +1,26 @@
+local copy_merge = require"lib.merge".copy_merge
+
 local level = {
-  loaded = false,
-  d = nil,
+  selected_ind = 1
 }
 
 local options = { "Level 1", "Level 2", "Quit" }
 local actions = { "first", "second", "quit" }
-local selected_ind = 1
-local font
 
-function level.load()
-  font = love.graphics.newFont(36)
+function level:new(d)
+  local new = copy_merge(self, {
+    d = d,
+    font = love.graphics.newFont(36)
+  })
   -- grass = love.graphics.newImage("asset/sp_grass.png")
-  -- character = require("objects.player"):create(200, 400)
+  -- character = require("objects.player"):new(d, 200, 400)
   -- table.insert(updates, character)
   -- table.insert(updates, require("lib.sheet_animator"))
   -- table.insert(draws, character)
+  d:add("update", function(dt) new:update(dt) end)
+  d:add("draw", function(_) new:draw() end)
+  d:add("keypressed", function(key) new:keypressed(key) end)
+  return new
 end
 
 function level:update(dt)
@@ -22,15 +28,15 @@ end
 
 function level:keypressed(key)
   if key == "k" or key == "up" then
-    selected_ind = math.max(1, selected_ind - 1)
+    self.selected_ind = math.max(1, self.selected_ind - 1)
   elseif key == "j" or key == "down" then
-    selected_ind = math.min(#options, selected_ind + 1)
+    self.selected_ind = math.min(#options, self.selected_ind + 1)
   elseif key == "return" then
-    if actions[selected_ind] == "quit" then
+    if actions[self.selected_ind] == "quit" then
       self.d:dispatch("quit", nil)
-    elseif actions[selected_ind] == "first" then
+    elseif actions[self.selected_ind] == "first" then
       self.d:dispatch("menu", "first")
-    elseif actions[selected_ind] == "second" then
+    elseif actions[self.selected_ind] == "second" then
       self.d:dispatch("menu", "second")
     end
   end
@@ -45,14 +51,14 @@ function level:draw()
   love.graphics.rectangle("fill", center.x - rel_size.w / 2, center.y - rel_size.h / 2, rel_size.w, rel_size.h, radius)
   love.graphics.setColor(0.2, 0.6, 0.6)
   love.graphics.rectangle("line", center.x - rel_size.w / 2, center.y - rel_size.h / 2, rel_size.w, rel_size.h, radius)
-  love.graphics.setFont(font)
+  love.graphics.setFont(self.font)
   love.graphics.setColor(0.6, 0.6, 0.6)
   love.graphics.print("Welcome!", center.x - rel_size.w / 2, center.y - rel_size.h / 2 + 20)
   row_spacing = 50
   marker_spacing = 50
   for i, option in ipairs(options) do
     love.graphics.setColor(0.6, 0.6, 0.6)
-    if i == selected_ind then
+    if i == self.selected_ind then
       love.graphics.setColor(0.05, 0.2, 0.05)
       love.graphics.print(
         ">",
@@ -68,4 +74,4 @@ function level:draw()
   love.graphics.setColor(1, 1, 1)
 end
 
- return level
+return level

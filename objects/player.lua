@@ -1,4 +1,5 @@
 local merge = require"lib.merge".merge
+local ballistic = require("objects.projectile")
 
 local player = {}
 
@@ -11,7 +12,6 @@ Cycles are {
 function player:new(d, x, y)
   local sheet_animator = require("lib.sheet_animator")
   local new = require"lib.merge".merge({ d = d }, player)
-  new.ballistic = require("objects.projectile")
   new.character = love.graphics.newImage("asset/sp_yellow_guy.png")
   new.bazooka = love.graphics.newImage("asset/sp_bazooka.png")
   new.x = x
@@ -40,22 +40,23 @@ function player:new(d, x, y)
   )
   new.elapsed_time = 0
   new = setmetatable(merge({}, new), { __index = self })
-  d:add("keypressed", function(key) new:keypressed(key) end)
-  d:add("update", function(dt) new:update(dt) end)
-  d:add("draw", function(_) new:draw() end)
+  self.keypressed_event = d:add("keypressed", function(key) new:keypressed(key) end)
+  self.update_event = d:add("update", function(dt) new:update(dt) end)
+  self.draw_event = d:add("draw", function(_) new:draw() end)
   return new
 end
 
 function player:keypressed(key)
   if key == "space" then
     self.bazooka_animation:reset()
-    self.ballistic:create(self.x + 24, self.y - 10, 6.28 - 1.57)
+    ballistic:new(self.d, self.x + 24, self.y - 10, 6.28 - 1.57)
   end
 end
 
 function player:drop()
-  -- self.d:remove("update", self)
-  -- self.d:remove("draw", self)
+  self.d:remove_id("keypressed", self.keypressed_event)
+  self.d:remove_id("update", self.update_event)
+  self.d:remove_id("draw", self.draw_event)
 end
 
 function player:update(dt)
@@ -74,13 +75,11 @@ function player:update(dt)
   elseif love.keyboard.isDown("down") then
     self.y = self.y + actual_speed * dt
   end
-  self.ballistic:update(dt)
 end
 
 function player:draw()
   local quad = self.character_animation:get_quad()
   love.graphics.draw(self.character, quad, self.x, self.y)
-  self.ballistic:draw()
   quad = self.bazooka_animation:get_quad()
   love.graphics.draw(self.bazooka, quad, self.x, self.y - 28)
 end

@@ -53,8 +53,8 @@ function sprite:new(d, x, y, sprite_name, options)
 end
 
 function sprite:drop()
-  -- self.d:remove("update", self)
-  -- self.d:remove("draw", self)
+  self.d:remove("update", self)
+  self.d:remove("draw", self)
 end
 
 function sprite:update(dt)

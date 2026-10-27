@@ -1,3 +1,4 @@
+local measure_screen = require"lib.measure".measure_screen
 local copy_merge = require"lib.merge".copy_merge
 
 local level = {
@@ -44,7 +45,7 @@ end
 
 function level:draw()
   local radius = 12
-  local screen_size = { w = love.graphics.getWidth(), h = love.graphics.getHeight() }
+  local screen_size = measure_screen()
   local center = { x = screen_size.w / 2, y = screen_size.h / 2 }
   local rel_size = { w = screen_size.w * 0.7, h = screen_size.h * 0.7 }
   love.graphics.setColor(0.2, 0.4, 0.2)

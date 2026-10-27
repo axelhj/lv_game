@@ -1,62 +1,61 @@
-local projectile = {
-  instances = {},
-  elapsed_time = 0
-}
+local rectangle = require"lib.rectangle"
+local measure_screen = require"lib.measure".measure_screen
+local merge = require"lib.merge".merge
 
---[[
-Cycles are {
-  cycles = { frame_ind_1, frame_ind_2, ...},
-  speed = speed_ms_frame_time,
-}
-]]--
-function projectile:create(x, y, movement_angle)
+local projectile = {}
+
+function projectile:new(d, x, y, movement_angle)
   if self.ballistic == nil then
     self.ballistic = love.graphics.newImage("asset/sp_ballistic.png")
+    self.w = self.ballistic:getWidth()
+    self.h = self.ballistic:getHeight()
     self.quad = love.graphics.newQuad(
       10, 2, 47, 132,
-      self.ballistic:getWidth(),
-      self.ballistic:getHeight()
+      self.w,
+      self.h
     )
+    local screen_size = measure_screen()
+    self.bounds = rectangle:new(0, 0, screen_size.w, screen_size.h)
   end
-  local instance = {}
-  instance.x = x
-  instance.y = y
-  instance.movement_angle = movement_angle
-  instance.speed = 300
-  instance.created_time = self.elapsed_time
-  instance.elapsed_time = 0
-  table.insert(self.instances, instance)
-  return self
+  local new = merge({
+    d = d,
+    x = x,
+    y = y,
+    movement_angle = movement_angle,
+    speed = 300,
+    elapsed_time = 0,
+  }, self)
+  new.update_event = d:add("update", function(dt) new:update(dt) end)
+  new.draw_event = d:add("draw", function() new:draw() end)
+  return new
 end
 
 function projectile:drop()
-  self.instances = {}
+  self.d:remove_id("update", self.update_event)
+  self.d:remove_id("draw", self.draw_event)
 end
 
 function projectile:update(dt)
   self.elapsed_time = self.elapsed_time + (dt * 1000)
-  for i = #self.instances, 1, -1 do
-    local instance = self.instances[i]
-    if (self.elapsed_time - instance.created_time) / 1000 > 4 then
-      table.remove(self.instances, i)
-    end
-    instance.x = instance.x + math.cos(instance.movement_angle) * instance.speed * dt
-    instance.y = instance.y + math.sin(instance.movement_angle) * instance.speed * dt
+  if --self.elapsed_time / 1000 > 4 or
+    not self.bounds:intersects(rectangle:new(self.x, self.y, self.w, self.h))
+  then
+    self:drop()
+  else
+    self.x = self.x + math.cos(self.movement_angle) * self.speed * dt
+    self.y = self.y + math.sin(self.movement_angle) * self.speed * dt
   end
 end
 
 function projectile:draw()
-  for i = 1, #self.instances do
-    local instance = self.instances[i]
-    love.graphics.draw(
-      self.ballistic,
-      self.quad,
-      instance.x,
-      instance.y,
-      instance.display_angle,
-      0.3
-    )
-  end
+  love.graphics.draw(
+    self.ballistic,
+    self.quad,
+    self.x,
+    self.y,
+    self.display_angle,
+    0.3
+  )
 end
 
 return projectile

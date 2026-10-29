@@ -1,4 +1,3 @@
-local merge = require"lib.merge".merge
 local copy_merge = require"lib.merge".copy_merge
 
 local r = {

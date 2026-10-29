@@ -1,4 +1,5 @@
 local merge = require"lib.merge".merge
+local vec2 = require"lib.vector"
 local ballistic = require("objects.projectile")
 
 local player = {}
@@ -79,9 +80,15 @@ end
 
 function player:draw()
   local quad = self.character_animation:get_quad()
-  love.graphics.draw(self.character, quad, self.x, self.y)
+  local _, _, w, h = quad:getViewport()
+  love.graphics.draw(self.character, quad, self.x, self.y, self.elapsed_time / 10000, 1, 1, w/2, h/2)
   quad = self.bazooka_animation:get_quad()
-  love.graphics.draw(self.bazooka, quad, self.x, self.y - 28)
+  _, _, w, h = quad:getViewport()
+  local bazooka_pos = vec2:new(self.x, self.y + 18):rotate(
+    vec2:new(self.x, self.y),
+    self.elapsed_time / 10000
+  )
+  love.graphics.draw(self.bazooka, quad, bazooka_pos.x, bazooka_pos.y, self.elapsed_time / 10000, 1, 1, w / 2, h / 2)
 end
 
 return player

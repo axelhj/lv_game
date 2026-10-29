@@ -41,5 +41,5 @@ end
 
 function love.draw()
   levels[current_level].d:dispatch("draw", nil)
-  if love.timer then love.timer.sleep(0.1) end
+  -- if love.timer then love.timer.sleep(0.1) end
 end

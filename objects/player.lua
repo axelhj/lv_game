@@ -13,6 +13,7 @@ Cycles are {
 function player:new(d, x, y)
   local sheet_animator = require("lib.sheet_animator")
   local new = require"lib.merge".merge({ d = d }, player)
+  new.angle = 0
   new.character = love.graphics.newImage("asset/sp_yellow_guy.png")
   new.bazooka = love.graphics.newImage("asset/sp_bazooka.png")
   new.x = x
@@ -50,7 +51,11 @@ end
 function player:keypressed(key)
   if key == "space" then
     self.bazooka_animation:reset()
-    ballistic:new(self.d, self.x + 24, self.y - 10, 6.28 - 1.57)
+    local origin_pos = vec2:new(self.x + 4, self.y - 26):rotate(
+      vec2:new(self.x, self.y),
+      self.angle
+    )
+    ballistic:new(self.d, origin_pos.x, origin_pos.y, 6.28 - 1.57 + self.angle)
   end
 end
 
@@ -63,32 +68,38 @@ end
 function player:update(dt)
   self.elapsed_time = self.elapsed_time + (dt * 1000)
   local actual_speed = self.speed
+  local turn_speed = math.pi * 0.5
   if love.keyboard.isDown("lshift") then
     actual_speed = actual_speed + self.boost
+    turn_speed = math.pi * 0.75
   end
   if love.keyboard.isDown("left") then
-    self.x = self.x - actual_speed * dt
+    self.angle = self.angle - turn_speed * dt
   elseif love.keyboard.isDown("right") then
-    self.x = self.x + actual_speed * dt
+    self.angle = self.angle + turn_speed * dt
   end
+  local movement = vec2:new(0, 0)
   if love.keyboard.isDown("up") then
-    self.y = self.y - actual_speed * dt
+    movement.y = -actual_speed * dt
   elseif love.keyboard.isDown("down") then
-    self.y = self.y + actual_speed * dt
+    movement.y = actual_speed * dt
   end
+  local pos = movement:origin_rotate(self.angle)
+  self.x = self.x + pos.x
+  self.y = self.y + pos.y
 end
 
 function player:draw()
   local quad = self.character_animation:get_quad()
   local _, _, w, h = quad:getViewport()
-  love.graphics.draw(self.character, quad, self.x, self.y, self.elapsed_time / 10000, 1, 1, w/2, h/2)
+  love.graphics.draw(self.character, quad, self.x, self.y, self.angle, 1, 1, w/2, h/2)
   quad = self.bazooka_animation:get_quad()
   _, _, w, h = quad:getViewport()
   local bazooka_pos = vec2:new(self.x, self.y + 18):rotate(
     vec2:new(self.x, self.y),
-    self.elapsed_time / 10000
+    self.angle
   )
-  love.graphics.draw(self.bazooka, quad, bazooka_pos.x, bazooka_pos.y, self.elapsed_time / 10000, 1, 1, w / 2, h / 2)
+  love.graphics.draw(self.bazooka, quad, bazooka_pos.x, bazooka_pos.y, self.angle, 1, 1, w / 2, h / 2)
 end
 
 return player

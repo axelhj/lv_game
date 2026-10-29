@@ -27,17 +27,17 @@ end
 
 function r:intersects(other)
   return not (
-    other.offset_x                   > self.offset_x + self.extent_x or
+    other.offset_x                  > self.offset_x + self.extent_x or
     other.offset_x + other.extent_x < self.offset_x or
-    other.offset_y                   > self.offset_y + self.extent_y or
+    other.offset_y                  > self.offset_y + self.extent_y or
     other.offset_y + other.extent_y < self.extent_y)
 end
 
 function r:contains(other)
   return not (
-    other.offset_x                   > offset_x and
+    other.offset_x                  > offset_x and
     other.offset_x + other.extent_x < offset_x + extent_x and
-    other.offset_y                   > offset_y and
+    other.offset_y                  > offset_y and
     other.offset_y + other.extent_y < extent_y + extent_y)
 end
 

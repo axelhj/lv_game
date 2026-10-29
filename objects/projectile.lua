@@ -22,6 +22,8 @@ function projectile:new(d, x, y, movement_angle)
     x = x,
     y = y,
     movement_angle = movement_angle,
+    display_angle = movement_angle - math.pi / -2,
+    -- display_angle = movement_angle,
     speed = 300,
     elapsed_time = 0,
   }, self)
@@ -38,7 +40,7 @@ end
 function projectile:update(dt)
   self.elapsed_time = self.elapsed_time + (dt * 1000)
   if --self.elapsed_time / 1000 > 4 or
-    not self.bounds:intersects(rectangle:new(self.x, self.y, self.w, self.h))
+    not self.bounds:intersects(rectangle:new(self.x - 40, self.y - 40, self.w * 3, self.h * 3))
   then
     self:drop()
   else

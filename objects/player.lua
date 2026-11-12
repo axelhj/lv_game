@@ -73,15 +73,15 @@ function player:update(dt)
     actual_speed = actual_speed + self.boost
     turn_speed = math.pi * 0.75
   end
-  if love.keyboard.isDown("left") then
+  if love.keyboard.isDown("left") or love.keyboard.isDown("a") then
     self.angle = self.angle - turn_speed * dt
-  elseif love.keyboard.isDown("right") then
+  elseif love.keyboard.isDown("right") or love.keyboard.isDown("d") then
     self.angle = self.angle + turn_speed * dt
   end
   local movement = vec2:new(0, 0)
-  if love.keyboard.isDown("up") then
+  if love.keyboard.isDown("up") or love.keyboard.isDown("w") then
     movement.y = -actual_speed * dt
-  elseif love.keyboard.isDown("down") then
+  elseif love.keyboard.isDown("down") or love.keyboard.isDown("s") then
     movement.y = actual_speed * dt
   end
   local pos = movement:origin_rotate(self.angle)

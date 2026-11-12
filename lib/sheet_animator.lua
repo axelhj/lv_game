@@ -4,8 +4,8 @@ local sheet_animator = {
 }
 
 local function get_quad(self)
-  local w = self.image_w / self.frames_x
-  local h = self.image_h / self.frames_y
+  local w = (self.image_w / self.frames_x) * self.scale
+  local h = (self.image_h / self.frames_y) * self.scale
   local row = math.floor(
     self.cycles[self.current_frame] / self.frames_x
   )
@@ -30,7 +30,16 @@ Cycles are {
   speed = speed_ms_frame_time,
 }
 ]]--
-function sheet_animator:new(lv_image, frames_x, frames_y, cycles, speed, pad_x, pad_y, repeat_)
+function sheet_animator:new(
+  lv_image,
+  frames_x,
+  frames_y,
+  cycles,
+  speed,
+  pad_x,
+  pad_y,
+  repeat_
+)
   local width = lv_image:getWidth()
   local height = lv_image:getHeight()
   local instance = {
@@ -48,6 +57,7 @@ function sheet_animator:new(lv_image, frames_x, frames_y, cycles, speed, pad_x, 
     repeat_ = repeat_,
     reset = reset,
     get_quad = get_quad,
+    scale = 1,
   }
   table.insert(self.instances, instance)
   return instance

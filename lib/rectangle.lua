@@ -33,6 +33,19 @@ function r:intersects(other)
     other.offset_y + other.extent_y < self.extent_y)
 end
 
+function r:intersection_rect(other)
+  if not self:intersects(other) then return nil end
+  local x = math.max(self.offset_x, other.offset_x)
+  local y = math.max(self.offset_y, other.offset_y)
+  local w = math.min(
+    self.offset_x + self.extent_x,
+    other.offset_x + other.extent_x) - x
+  local h = math.min(
+    self.offset_y + self.extent_y,
+    other.offset_y + other.extent_y) - y
+  return self:new(x, y, w, h)
+end
+
 function r:contains(other)
   return not (
     other.offset_x                  > offset_x and
@@ -47,6 +60,15 @@ function r:contained_by(other)
     other.offset_x + other.extent_x > self.offset_x + self.extent_x and
     other.offset_y                   < self.offset_y and
     other.offset_y + other.extent_y > self.extent_y + self.extent_y)
+end
+
+function r:string()
+  return "(x: "..self.offset_x.." y: "..self.offset_y..
+    " w: "..self.extent_x.." h: "..self.extent_y..")"
+end
+
+function r:area()
+  return self.extent_x * self.extent_y
 end
 
 return r

@@ -28,9 +28,9 @@ function level:update(dt)
 end
 
 function level:keypressed(key)
-  if key == "k" or key == "up" then
+  if key == "w" or key == "k" or key == "up" then
     self.selected_ind = math.max(1, self.selected_ind - 1)
-  elseif key == "j" or key == "down" then
+  elseif key == "s" or key == "j" or key == "down" then
     self.selected_ind = math.min(#options, self.selected_ind + 1)
   elseif key == "return" then
     if actions[self.selected_ind] == "quit" then
